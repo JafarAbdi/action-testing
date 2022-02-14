@@ -1,0 +1,55 @@
+name: tf-app-dns-reusable
+
+on:
+  workflow_call:
+    inputs:
+      TRIGGER_EVENT:
+        description: trigger event for the workflow
+        required: true
+        type: string
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    name: Validate terraform configuration
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: debug
+        run: |
+          echo ${{ inputs.TRIGGER_EVENT }}
+
+  plan-non-prod:
+    if: ${{ inputs.TRIGGER_EVENT == 'pull_request' }}
+    needs: lint
+    runs-on: ubuntu-latest
+    name: Plan Application DNS Non Prod
+    steps:
+      - name: debug
+        run: |
+          echo "triggered event"
+          echo ${{ inputs.TRIGGER_EVENT }}
+
+
+  plan-prod:
+    if: ${{ inputs.TRIGGER_EVENT == 'pull_request' }}
+    needs: "plan-non-prod"
+    runs-on: ubuntu-latest
+    name: Plan Application DNS Prod
+    steps:
+      - name: debug
+        run: |
+          echo "triggered event"
+          echo ${{ inputs.TRIGGER_EVENT }}
+
+  apply-non-prod:
+    if: ${{ inputs.TRIGGER_EVENT == 'push' }}
+    needs: lint
+    runs-on: ubuntu-latest
+    name: apply non prod
+    steps:
+      - name: debug
+        run: |
+          echo "triggered event"
+          echo ${{ inputs.TRIGGER_EVENT }}
